@@ -30,14 +30,23 @@ o identificador) e `jangada --remove IDENTIFICADOR`.
 
 ## Usar
 
-Ao abrir o WhatsApp Web, tudo já vem desfocado (menos o que você digita). No canto aparece um
-**botão redondo com um olho**:
+Ao abrir o WhatsApp Web, tudo já vem desfocado (menos o que você digita).
+
+**Na Jangada com botão de extensões na barra**, a extensão ganha um botão (um olho riscado
+verde) ao lado dos escudos. O clique abre a **janelinha** com as escolhas, e o que você muda ali
+vale na hora em todas as abas do WhatsApp. Com o desfoque desligado, o botão mostra o selo
+**off**.
+
+**Na Jangada 2.1.3** (sem botões de extensão na barra), as mesmas escolhas ficam num **botão
+redondo com um olho** no canto da página:
 
 - **clique** abre o painel de escolhas;
 - **arraste** muda o botão de lugar (o lugar fica guardado);
 - verde e com o olho riscado: desfoque ligado; cinza: desligado.
 
-### O painel
+O botão na página também existe na Jangada nova: ligue em **Botão também na página**.
+
+### As escolhas
 
 | Opção | O que desfoca |
 |---|---|
@@ -50,13 +59,14 @@ Ao abrir o WhatsApp Web, tudo já vem desfocado (menos o que você digita). No c
 | **O que você digita** | A caixa de mensagem e a busca de conversas. Vem desligada. |
 | **Intensidade** | Quanto desfoca, de 2 a 24 pixels (o padrão é 8). |
 | **Revelar ao passar o mouse** | Passar o mouse por cima mostra o que está desfocado. Numa mensagem, basta passar em qualquer ponto do balão. |
-| **Mostrar este botão** | Esconde o botão flutuante. O painel continua abrindo pelo atalho Ctrl+Alt+J. |
+| **Botão também na página** / **Mostrar este botão** | O botão flutuante na página. Sem ele, o painel na página continua abrindo pelo atalho Ctrl+Alt+J. |
 
 As escolhas ficam guardadas e valem da próxima vez que você abrir o WhatsApp.
 
 ### Escolher na tela
 
-Para ocultar algo que não está nas categorias, use **Escolher na tela** no painel:
+Para ocultar algo que não está nas categorias, use **Escolher na tela** (na janelinha ou no
+painel):
 
 1. o cursor vira uma mira e um quadro verde mostra o que está embaixo do mouse;
 2. **clique** para desfocar aquele pedaço (clicar de novo nele volta a mostrar);
@@ -73,7 +83,7 @@ categorias.
 | Atalho | O que faz |
 |---|---|
 | **Ctrl+Alt+B** | Liga e desliga o desfoque (rápido, para quando alguém chega). |
-| **Ctrl+Alt+J** | Abre e fecha o painel. |
+| **Ctrl+Alt+J** | Abre e fecha o painel na página. |
 | **Esc** | Fecha o painel, ou termina a escolha na tela. |
 
 Os atalhos usam a tecla física, então funcionam em qualquer layout de teclado.
@@ -105,10 +115,13 @@ Para gravar a tela, prefira uma intensidade alta.
 [guia de extensões](https://github.com/fabioaacarneiro/jangada/blob/master/docs/EXTENSOES.md)):
 
 ```
-manifest.json   o nome, a versão e onde a extensão entra (https://web.whatsapp.com/*)
+manifest.json   o nome, a versão, onde a extensão entra (https://web.whatsapp.com/*) e o botão na barra
 blur.css        as regras do desfoque, uma por categoria
 blur.js         o núcleo: guarda as escolhas, marca nomes e prévias na lista, atalhos, escolha na tela
-painel.js       o botão flutuante e o painel (num Shadow DOM, fora do alcance do CSS do WhatsApp)
+painel.js       o botão flutuante e o painel na página (num Shadow DOM, fora do CSS do WhatsApp)
+popup.html      a janelinha do botão na barra (com popup.css e popup.js)
+_locales/       os textos da janelinha em português e inglês
+icone.svg       o ícone
 ```
 
 - O `blur.js` liga e desliga as categorias com atributos no `<html>` (`data-jbc-on`,
@@ -122,6 +135,11 @@ painel.js       o botão flutuante e o painel (num Shadow DOM, fora do alcance d
   classes `.message-in`, `.message-out` e `.copyable-text`, que o WhatsApp usa há anos.
 - O `painel.js` usa o núcleo pelo `window.jangadaBlur` (cada arquivo de extensão da Jangada roda
   numa função à parte, e esse `window` é o do mundo isolado: a página não o enxerga).
+- A janelinha (`popup.js`) grava as escolhas no storage; o `blur.js` recebe a mudança por
+  `storage.onChanged` e aplica na hora. "Escolher na tela" e "Limpar escolhas" vão da janelinha
+  para a aba do WhatsApp por `tabs.sendMessage`.
+- O `blur.js` descobre se a Jangada tem a barra (`jangada.action`): sem ela, o botão na página
+  vem ligado; com ela, desligado.
 
 ### Ajustar os seletores
 

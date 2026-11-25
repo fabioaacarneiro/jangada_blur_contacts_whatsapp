@@ -2,9 +2,13 @@
 //
 // Guarda as escolhas (jangada.storage.local), liga e desliga as categorias no <html> (o
 // blur.css faz o desfoque), marca os nomes e as prévias na lista de conversas, cuida dos
-// atalhos e do modo "escolher na tela". O painel (painel.js) usa o que fica em
+// atalhos e do modo "escolher na tela". O painel na página (painel.js) usa o que fica em
 // window.jangadaBlur: cada arquivo de extensão da Jangada é uma função à parte, e esse é o
 // jeito de dividir código entre eles (o window é o do mundo isolado; a página não o vê).
+//
+// Na Jangada com botão de extensão na barra, as escolhas ficam na janelinha do botão
+// (popup.html): ela grava no storage e este script aplica na hora (storage.onChanged), e
+// pede "escolher na tela" por mensagem. Na Jangada sem a barra, vale o botão flutuante.
 (function () {
   "use strict";
 
@@ -12,6 +16,9 @@
 
   // As categorias, na ordem do painel. A chave vira o atributo data-jbc-CHAVE no <html>.
   var CATEGORIAS = ["nomes", "fotos", "previas", "mensagens", "midia", "digitando"];
+
+  // A Jangada tem o botão das extensões na barra (e a janelinha dele)?
+  var temBarra = !!(jangada.action && typeof jangada.action.setBadgeText === "function");
 
   // Privacidade primeiro: até as escolhas guardadas chegarem, vale o padrão (tudo
   // desfocado, menos o que você digita).
@@ -25,8 +32,10 @@
     digitando: false,
     intensidade: 8,
     revelar: true,
-    mostrarBotao: true,
-    botao: { direita: 24, baixo: 96 }
+    // Com a barra, as escolhas ficam na janelinha: o botão na página só se você quiser.
+    mostrarBotao: !temBarra,
+    botao: { direita: 24, baixo: 96 },
+    versao: 2
   };
 
   var config = copiar(PADRAO);
@@ -66,7 +75,14 @@
         console.error("Blur de Contatos:", e);
       }
     });
+    // O selo do botão na barra avisa quando o desfoque está desligado.
+    if (temBarra && config.ativo !== seloLigado) {
+      seloLigado = config.ativo;
+      jangada.action.setBadgeText({ text: config.ativo ? "" : "off" });
+      jangada.action.setBadgeBackgroundColor({ color: "#54656f" });
+    }
   }
+  var seloLigado = null;
 
   function salvar() {
     jangada.storage.local.set({ config: config });
@@ -81,15 +97,38 @@
     salvar();
   }
 
+  // Junta o que foi guardado com o padrão: uma versão nova pode trazer escolhas que a
+  // guardada não tem.
+  function juntar(guardado) {
+    guardado = guardado || {};
+    Object.keys(PADRAO).forEach(function (k) {
+      config[k] = guardado[k] !== undefined ? guardado[k] : copiar(PADRAO)[k];
+    });
+  }
+
   aplicar();
   jangada.storage.local.get({ config: PADRAO }).then(function (dados) {
     var guardado = dados && dados.config ? dados.config : {};
-    // Junta com o padrão: uma versão nova pode trazer escolhas que a guardada não tem.
-    Object.keys(PADRAO).forEach(function (k) {
-      if (guardado[k] !== undefined) config[k] = guardado[k];
-    });
+    juntar(guardado);
+    // As escolhas da versão 1 (sem a barra) tinham o botão na página ligado: com a barra,
+    // ele sai uma vez (dá para pôr de volta na janelinha).
+    if (temBarra && !guardado.versao) {
+      config.mostrarBotao = false;
+      config.versao = 2;
+      salvar();
+    }
     aplicar();
   });
+
+  // Mudou na janelinha (ou em outra aba do WhatsApp): vale aqui na hora.
+  if (jangada.storage.onChanged) {
+    jangada.storage.onChanged.addListener(function (mudancas) {
+      if (mudancas.config && mudancas.config.newValue) {
+        juntar(mudancas.config.newValue);
+        aplicar();
+      }
+    });
+  }
 
   // --------------------------------------------------------------------------------------
   // A lista de conversas: o WhatsApp não dá nomes estáveis ao nome e à prévia de cada
@@ -291,6 +330,17 @@
   // --------------------------------------------------------------------------------------
   // O que o painel (painel.js) usa.
   // --------------------------------------------------------------------------------------
+
+  // A janelinha pede pela aba: escolher na tela, limpar as escolhas, o estado delas.
+  if (jangada.runtime.onMessage) {
+    jangada.runtime.onMessage.addListener(function (msg, remetente, responder) {
+      if (!msg || typeof msg.tipo !== "string") return;
+      if (msg.tipo === "escolher") iniciarEscolha();
+      else if (msg.tipo === "limpar") limparEscolhidos();
+      else if (msg.tipo !== "estado") return;
+      responder({ escolhidos: contarEscolhidos(), escolhendo: escolha.ativa });
+    });
+  }
 
   window.jangadaBlur = {
     CATEGORIAS: CATEGORIAS,

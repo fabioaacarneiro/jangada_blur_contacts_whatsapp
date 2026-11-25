@@ -1,0 +1,18 @@
+{
+  "titulo": { "message": "Contact Blur" },
+  "ligado": { "message": "Blur on" },
+  "nomes": { "message": "Names" },
+  "fotos": { "message": "Profile photos" },
+  "previas": { "message": "Chat list previews" },
+  "mensagens": { "message": "Messages" },
+  "midia": { "message": "Photos and videos" },
+  "digitando": { "message": "What you type" },
+  "intensidade": { "message": "Strength" },
+  "revelar": { "message": "Reveal on hover" },
+  "mostrarBotao": { "message": "Button on the page too" },
+  "escolher": { "message": "Pick on screen" },
+  "limpar": { "message": "Clear picks" },
+  "escolhidos": { "message": "$N$ picked on screen (until reload)", "placeholders": { "n": { "content": "$1" } } },
+  "foraDoWhatsApp": { "message": "Open WhatsApp Web in this tab to pick on screen. The other options apply to all its tabs." },
+  "atalhos": { "message": "Ctrl+Alt+B toggles · Ctrl+Alt+J opens the panel on the page" }
+}

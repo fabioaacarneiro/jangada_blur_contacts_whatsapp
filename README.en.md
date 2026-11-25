@@ -34,14 +34,23 @@ ID) and `jangada --remove ID`.
 
 ## Use
 
-When WhatsApp Web opens, everything is already blurred (except what you type). A **round button
-with an eye** appears in the corner:
+When WhatsApp Web opens, everything is already blurred (except what you type).
+
+**In a Jangada with extension buttons in the toolbar**, the extension gets a button (a green
+crossed-out eye) next to the shields. Clicking it opens the **popup** with the settings, and what
+you change there applies right away to every WhatsApp tab. When blur is off, the button shows an
+**off** badge.
+
+**In Jangada 2.1.3** (no extension buttons in the toolbar), the same settings live in a **round
+button with an eye** in the corner of the page:
 
 - **click** opens the settings panel;
 - **drag** moves the button (its position is saved);
 - green with a crossed-out eye: blur is on; gray: blur is off.
 
-### The panel
+The in-page button also exists in the new Jangada: turn on **Button on the page too**.
+
+### The settings
 
 | Option | What it blurs |
 |---|---|
@@ -54,13 +63,14 @@ with an eye** appears in the corner:
 | **What you type** | The message box and the chat search. Off by default. |
 | **Strength** | How much to blur, from 2 to 24 pixels (default 8). |
 | **Reveal on hover** | Hovering shows what is blurred. On a message, hovering anywhere on the bubble is enough. |
-| **Show this button** | Hides the floating button. The panel still opens with Ctrl+Alt+J. |
+| **Button on the page too** / **Show this button** | The floating button on the page. Without it, the in-page panel still opens with Ctrl+Alt+J. |
 
 Settings are saved and apply the next time you open WhatsApp.
 
 ### Pick on screen
 
-To hide something that isn't in the categories, use **Pick on screen** in the panel:
+To hide something that isn't in the categories, use **Pick on screen** (in the popup or the
+panel):
 
 1. the cursor becomes a crosshair and a green box shows what is under the mouse;
 2. **click** to blur that element (click it again to show it);
@@ -76,7 +86,7 @@ recognize the same element after a reload. For something permanent, use the cate
 | Shortcut | What it does |
 |---|---|
 | **Ctrl+Alt+B** | Turns blur on and off (quick, for when someone walks in). |
-| **Ctrl+Alt+J** | Opens and closes the panel. |
+| **Ctrl+Alt+J** | Opens and closes the in-page panel. |
 | **Esc** | Closes the panel, or ends picking on screen. |
 
 Shortcuts use the physical key, so they work with any keyboard layout.
@@ -108,10 +118,13 @@ It's an extension in Jangada's format (see the
 Portuguese):
 
 ```
-manifest.json   name, version and where the extension runs (https://web.whatsapp.com/*)
+manifest.json   name, version, where the extension runs (https://web.whatsapp.com/*) and the toolbar button
 blur.css        the blur rules, one per category
 blur.js         the core: saves settings, tags names and previews in the list, shortcuts, picking
-painel.js       the floating button and the panel (in a Shadow DOM, out of WhatsApp's CSS reach)
+painel.js       the floating button and the in-page panel (in a Shadow DOM, out of WhatsApp's CSS)
+popup.html      the toolbar button's popup (with popup.css and popup.js)
+_locales/       the popup's texts in Portuguese and English
+icone.svg       the icon
 ```
 
 The code and its comments are in Portuguese, following Jangada's own code.
@@ -127,6 +140,11 @@ The code and its comments are in Portuguese, following Jangada's own code.
   `.message-in`, `.message-out` and `.copyable-text` classes, which WhatsApp has used for years.
 - `painel.js` reaches the core through `window.jangadaBlur` (each Jangada extension file runs in
   its own function, and this `window` belongs to the isolated world: the page can't see it).
+- The popup (`popup.js`) saves the settings to storage; `blur.js` gets the change through
+  `storage.onChanged` and applies it right away. "Pick on screen" and "Clear picks" go from the
+  popup to the WhatsApp tab through `tabs.sendMessage`.
+- `blur.js` detects whether Jangada has the toolbar (`jangada.action`): without it, the in-page
+  button starts on; with it, off.
 
 ### Adjusting the selectors
 

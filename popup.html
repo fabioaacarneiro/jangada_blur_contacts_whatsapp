@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="icone.svg" alt="" width="22" height="22">
+    <h1 data-t="titulo"></h1>
+  </header>
+  <label class="geral"><input type="checkbox" data-chave="ativo"><span data-t="ligado"></span></label>
+  <fieldset id="opcoes">
+    <label><input type="checkbox" data-chave="nomes"><span data-t="nomes"></span></label>
+    <label><input type="checkbox" data-chave="fotos"><span data-t="fotos"></span></label>
+    <label><input type="checkbox" data-chave="previas"><span data-t="previas"></span></label>
+    <label><input type="checkbox" data-chave="mensagens"><span data-t="mensagens"></span></label>
+    <label><input type="checkbox" data-chave="midia"><span data-t="midia"></span></label>
+    <label><input type="checkbox" data-chave="digitando"><span data-t="digitando"></span></label>
+    <div class="faixa">
+      <span data-t="intensidade"></span>
+      <input type="range" min="2" max="24" step="1" data-chave="intensidade">
+      <output id="px"></output>
+    </div>
+    <label><input type="checkbox" data-chave="revelar"><span data-t="revelar"></span></label>
+  </fieldset>
+  <label><input type="checkbox" data-chave="mostrarBotao"><span data-t="mostrarBotao"></span></label>
+  <div class="acoes">
+    <button id="escolher" class="principal" data-t="escolher"></button>
+    <button id="limpar" data-t="limpar"></button>
+  </div>
+  <p id="nota" class="nota" hidden></p>
+  <p class="atalhos" data-t="atalhos"></p>
+  <script src="popup.js"></script>
+</body>
+</html>

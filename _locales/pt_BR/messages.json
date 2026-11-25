@@ -1,0 +1,18 @@
+{
+  "titulo": { "message": "Blur de Contatos" },
+  "ligado": { "message": "Desfoque ligado" },
+  "nomes": { "message": "Nomes" },
+  "fotos": { "message": "Fotos de perfil" },
+  "previas": { "message": "Prévias na lista" },
+  "mensagens": { "message": "Mensagens" },
+  "midia": { "message": "Fotos e vídeos" },
+  "digitando": { "message": "O que você digita" },
+  "intensidade": { "message": "Intensidade" },
+  "revelar": { "message": "Revelar ao passar o mouse" },
+  "mostrarBotao": { "message": "Botão também na página" },
+  "escolher": { "message": "Escolher na tela" },
+  "limpar": { "message": "Limpar escolhas" },
+  "escolhidos": { "message": "$N$ escolhido(s) na tela (até recarregar)", "placeholders": { "n": { "content": "$1" } } },
+  "foraDoWhatsApp": { "message": "Abra o WhatsApp Web nesta aba para escolher na tela. As outras opções valem em todas as abas dele." },
+  "atalhos": { "message": "Ctrl+Alt+B liga e desliga · Ctrl+Alt+J abre o painel na página" }
+}
