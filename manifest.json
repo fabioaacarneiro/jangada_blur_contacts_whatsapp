@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Blur de Contatos para WhatsApp",
+  "version": "1.0.0",
+  "description": "Desfoca nomes, fotos, prévias, mensagens e mídias no WhatsApp Web. Você escolhe o que ocultar; passe o mouse para revelar.",
+  "permissions": ["storage"],
+  "content_scripts": [
+    {
+      "matches": ["https://web.whatsapp.com/*"],
+      "css": ["blur.css"],
+      "js": ["blur.js", "painel.js"]
+    }
+  ]
+}

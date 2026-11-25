@@ -1,0 +1,103 @@
+/*
+ * Blur de Contatos para WhatsApp: as regras do desfoque.
+ *
+ * Cada categoria só vale quando o <html> tem o atributo dela (o blur.js liga e desliga):
+ *   data-jbc-on        o desfoque está ligado (a chave geral)
+ *   data-jbc-nomes     nomes de contatos e grupos
+ *   data-jbc-fotos     fotos de perfil
+ *   data-jbc-previas   a última mensagem, na lista de conversas
+ *   data-jbc-mensagens o texto das mensagens na conversa aberta
+ *   data-jbc-midia     fotos, vídeos e figurinhas na conversa aberta
+ *   data-jbc-digitando o que você digita (caixa de mensagem e busca)
+ *   data-jbc-revelar   passar o mouse revela o que está desfocado
+ *
+ * Os atributos data-jbc-nome, data-jbc-previa e data-jbc-foto nos elementos da lista de
+ * conversas são postos pelo blur.js (o WhatsApp não dá nomes estáveis a esses pedaços).
+ * O data-jbc-manual é o que você escolheu na tela.
+ *
+ * Os alvos ficam dentro de :where() (especificidade zero): assim todas as regras de
+ * desfoque pesam o mesmo, e a regra de revelar (com :hover) sempre ganha delas.
+ *
+ * O WhatsApp Web muda o HTML de tempos em tempos: se uma categoria parar de funcionar,
+ * é aqui (e em marcarLista, no blur.js) que os seletores se ajustam.
+ */
+
+/* Fotos de perfil: as do WhatsApp vêm de pps.whatsapp.net, em qualquer tela. */
+html[data-jbc-on][data-jbc-fotos] :where(
+  img[src*="pps.whatsapp.net"],
+  #main header img,
+  [data-jbc-foto]
+),
+/* Nomes: o topo da conversa aberta e os nomes marcados na lista de conversas. */
+html[data-jbc-on][data-jbc-nomes] :where(
+  #main header span[dir="auto"],
+  #main header span[title],
+  [data-jbc-nome]
+),
+/* Prévias: a última mensagem de cada conversa, na lista. */
+html[data-jbc-on][data-jbc-previas] :where(
+  [data-jbc-previa]
+),
+/* Mensagens: o texto dos balões e as citações. Só o de fora: o WhatsApp põe .copyable-text
+   também no texto de dentro, e desfocar os dois dobraria o desfoque. */
+html[data-jbc-on][data-jbc-mensagens] :where(
+  #main :is(.message-in, .message-out) :is(.copyable-text, .selectable-text, .quoted-mention):not(.copyable-text *),
+  #main [data-pre-plain-text]:not(.copyable-text *)
+),
+/* Mídia: imagens, vídeos, figurinhas e miniaturas nos balões (os emojis ficam). */
+html[data-jbc-on][data-jbc-midia] :where(
+  #main :is(.message-in, .message-out) img:not([src*="pps.whatsapp.net"]):not([data-plain-text]):not(.emoji),
+  #main :is(.message-in, .message-out) video,
+  #main :is(.message-in, .message-out) canvas,
+  #main :is(.message-in, .message-out) [style*="background-image"]
+),
+/* O que você digita: a caixa de mensagem e a busca de conversas. */
+html[data-jbc-on][data-jbc-digitando] :where(
+  #main footer [contenteditable="true"],
+  #main footer [contenteditable="plaintext-only"],
+  #side [contenteditable="true"],
+  #side input
+),
+/* O que você escolheu na tela. */
+html[data-jbc-on] :where([data-jbc-manual]) {
+  filter: blur(var(--jbc-blur, 8px)) !important;
+  transition: filter 0.15s ease !important;
+}
+
+/*
+ * Passar o mouse revela: no próprio elemento, ou em qualquer ponto do balão da mensagem.
+ * O :hover dá a estas regras uma classe a mais que as de cima: elas sempre ganham.
+ * Enquanto você escolhe na tela, não revela: assim dá para ver o resultado do clique.
+ */
+html[data-jbc-on][data-jbc-revelar]:not([data-jbc-escolhendo]) :where(
+  img[src*="pps.whatsapp.net"],
+  #main header img,
+  #main header span[dir="auto"],
+  #main header span[title],
+  [data-jbc-foto],
+  [data-jbc-nome],
+  [data-jbc-previa],
+  [data-jbc-manual],
+  #main [data-pre-plain-text],
+  #main footer [contenteditable],
+  #side [contenteditable="true"],
+  #side input
+):hover,
+html[data-jbc-on][data-jbc-revelar]:not([data-jbc-escolhendo]) :where(#main :is(.message-in, .message-out)):hover :where(
+  .copyable-text,
+  .selectable-text,
+  .quoted-mention,
+  [data-pre-plain-text],
+  img,
+  video,
+  canvas,
+  [style*="background-image"]
+) {
+  filter: none !important;
+}
+
+/* Enquanto você escolhe na tela, o cursor vira uma mira. */
+html[data-jbc-escolhendo],
+html[data-jbc-escolhendo] * {
+  cursor: crosshair !important;
+}
